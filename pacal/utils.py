@@ -29,11 +29,7 @@ from pylab import plot, loglog, show, semilogx, sqrt, figure
 from pylab import real, ones_like
 from numpy import zeros, sort
 from numpy.linalg import eigvals
-from numpy.fft.fftpack import fft, ifft
 from numpy import real, concatenate, linspace, argmin
-
-
-#from scipy.fftpack.basic import fft
 from scipy.optimize import fmin_cg,fmin, fmin_tnc
 
 from . import params
@@ -159,12 +155,9 @@ def chebt2(f):
     n = len(f)
     oncircle = concatenate((f[-1::-1], f[1:-1]))
     fftcoef = real(fft(oncircle))/(2*n-2)
-    #print n, len(fftcoef)
-    #print fftcoef[n-1:]
-    #print fftcoef[n-1:0:-1]
     fftcoef[n-1:0:-1] += fftcoef[n-1:] # z+conj(z)
     return fftcoef[n-1::-1]
-    #return c
+
 def ichebt2(c):
     """inverse chebyshev transformation, values of function in Chebyshev
     nodes of the second kind, see chebfun for details"""
@@ -227,8 +220,6 @@ def estimateDegreeOfPole(f, x, pos = True, fromTo = None, N = 10, deriv = False,
     else:
         lx = x - ex
     y = abs(f(lx))
-    #if deriv:
-    #    y -= min(y[isfinite(y)])
     yi = log(y)
     xi = log(abs(ex))
     ind = isfinite(yi)
@@ -280,7 +271,6 @@ def testPole(f, x, pos = True, pole_eps = None, deriv = None, debug_info = None,
     deg = estimateDegreeOfPole(f, x, pos, deriv = deriv, **kwargs)
     if deriv:
         if (abs(deg) >= abs(pole_eps) and deg <= 1 - abs(pole_eps)) or (deg >= 1 + abs(pole_eps) and deg <= 2 - abs(pole_eps)) or deg>2:
-        #if (deg >= abs(pole_eps) and deg <= 1 - abs(pole_eps)) or (deg >= 1 + abs(pole_eps) and deg <= 2 - abs(pole_eps))or (deg >= 2 + abs(pole_eps) and deg <= 3 - abs(pole_eps)):
             pole = True
         else:
             pole = False
