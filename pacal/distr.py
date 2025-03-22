@@ -560,6 +560,18 @@ class TruncDistr(TruncRV, OpDistr):
         super(TruncDistr, self).__init__(d, a, b, sym=sym)
     def init_piecewise_pdf(self):
         self.piecewise_pdf = self.d.get_piecewise_pdf().truncate(self.a, self.b)
+    def pdf(self, x):
+        if isscalar(x):
+            if x < self.a or x > self.b:
+                y = 0
+            else:
+                y = self.d.pdf(x)
+        else:
+            y = zeros_like(asfarray(x))
+            mask = (self.a <= x) & (x <= self.b)
+            y[mask] = self.d.pdf(x[mask])
+        return y
+
     def rand_op(self, n, cache):
         samples = []
         for i in range(n):

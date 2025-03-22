@@ -1727,7 +1727,13 @@ class PiecewiseFunction(object):
                 new_fun.addSegment(PInfSegment(new_a, new_f))
             else:
                 assert False
-        return new_fun
+
+        Z = new_fun.integrate(a, b)
+        if Z == 0:
+            raise ValueError("Cannot truncate: zero probability in the given interval.")
+
+        normalized = new_fun * (1.0 / Z)
+        return normalized
 
     def splitByPoints(self, points):
         """Pointwise subtraction of two piecewise functions """
