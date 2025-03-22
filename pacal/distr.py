@@ -400,6 +400,8 @@ class Distr(RV):
 
     def trunc(self, a, b):
         return TruncDistr(self, a, b)
+    def censor(self, a, b):
+        return CensoredDistr(self, a, b)
     def __call__(self, x):
         """Overload function calls."""
         return self.pdf(x)
@@ -578,6 +580,36 @@ class TruncDistr(TruncRV, OpDistr):
             num = self.d.rand(1, cache)
             while num > self.b or num < self.a:
                 num = self.d.rand(1, cache)
+            samples.append(*num)
+        return array(samples)
+
+class CensoredDistr(CensoredRV, OpDistr):
+    def __init__(self, d, a, b, sym = None):
+        super(CensoredDistr, self).__init__(d, a, b, sym=sym)
+    def pdf(self, x):
+        if isscalar(x):
+            if x < self.a:
+                y = self.a
+            elif x > self.b:
+                y = self.b
+            else:
+                y = self.d.pdf(x)
+        else:
+            y = zeros_like(asfarray(x))
+            mask = (self.a <= x) & (x <= self.b)
+            y[mask] = self.d.pdf(x[mask])
+        return y
+
+    def init_piecewise_pdf(self):
+        self.piecewise_pdf = self.d.get_piecewise_pdf().censor(self.a, self.b)
+    def rand_op(self, n, cache):
+        samples = []
+        for i in range(n):
+            num = self.d.rand(1, cache)
+            if num > self.b:
+                num[0] = self.b
+            if num < self.a:
+                num[0] = self.a
             samples.append(*num)
         return array(samples)
 

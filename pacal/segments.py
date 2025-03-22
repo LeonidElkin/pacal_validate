@@ -1735,6 +1735,34 @@ class PiecewiseFunction(object):
         normalized = new_fun * (1.0 / Z)
         return normalized
 
+    def censor(self, a, b):
+        """Censoring the function on the interval [a, b].
+        The masses outside the interval are transferred to points a and b as deltas.
+        """
+
+        left_mass = self.integrate(-Inf, a)
+        right_mass = self.integrate(b, Inf)
+
+        f_restricted = self.truncate(a, b)
+        middle_mass = f_restricted.integrate()
+
+        total_mass = left_mass + middle_mass + right_mass
+        norm_factor = 1.0 / total_mass
+
+        result = PiecewiseFunction([])
+
+        if left_mass > 0:
+            result.addSegment(DiracSegment(a, left_mass * norm_factor))
+        if right_mass > 0:
+            result.addSegment(DiracSegment(b, right_mass * norm_factor))
+
+        f_normalized = f_restricted * (middle_mass * norm_factor / middle_mass)  # просто умножим на norm_factor
+        for seg in f_normalized.segments:
+            result.addSegment(seg)
+
+        return result
+
+
     def splitByPoints(self, points):
         """Pointwise subtraction of two piecewise functions """
         points = array(points)
