@@ -1698,6 +1698,37 @@ class PiecewiseFunction(object):
                 if a<=seg.a and seg.b<=b:
                     fun.addSegment(seg)
         return fun
+
+    def truncate(self, a, b):
+        """
+        Return function restricted to interval [a,b]. Does not ignore segments that cross borders but are not
+        completely within them.
+        """
+        new_fun = self.__class__([])
+        for seg in self.segments:
+            if seg.b <= a or seg.a >= b:
+                continue
+            new_a = max(seg.a, a)
+            new_b = min(seg.b, b)
+            new_f = lambda x, f=seg.f: f(x)
+
+            if seg.isDirac():
+                if a <= seg.a <= b:
+                    new_fun.addSegment(seg)
+            elif seg.hasLeftPole():
+                new_fun.addSegment(SegmentWithPole(new_a, new_b, new_f, left_pole=True))
+            elif seg.hasRightPole():
+                new_fun.addSegment(SegmentWithPole(new_a, new_b, new_f, left_pole=False))
+            elif seg.isSegment():
+                new_fun.addSegment(Segment(new_a, new_b, new_f))
+            elif seg.isMInf():
+                new_fun.addSegment(MInfSegment(new_b, new_f))
+            elif seg.isPInf():
+                new_fun.addSegment(PInfSegment(new_a, new_f))
+            else:
+                assert False
+        return new_fun
+
     def splitByPoints(self, points):
         """Pointwise subtraction of two piecewise functions """
         points = array(points)

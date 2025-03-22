@@ -313,6 +313,20 @@ class OpRV(RV):
             else:
                 op = str(self.getSym().__class__)
             return "({0}{2}{1})".format(self.parents[0], self.parents[1], op)
+
+class TruncRV(OpRV):
+    def __init__(self, d, a, b, sym = None):
+        super(TruncRV, self).__init__([d], sym = sym)
+        self.d = d
+        self.a = a
+        self.b = b
+    def __str__(self):
+        return "({0})truncated to({1}, {2})".format(self.d, self.a, self.b)
+    def getName(self):
+        return "({0})truncated to({1}, {2})".format(self.d.getName(), self.a, self.b)
+    def getSegments(self):
+        return self.a, self.b
+
 class FuncRV(OpRV):
     """Function of random variable"""
     def __init__(self, d, fname = "f", sym = None):
@@ -435,7 +449,6 @@ class SquareRV(OpRV):
         return "#{0}**2".format(self.d.id())
     def getName(self):
         return "sqr({0})".format(self.d.getName())
-
 
 class SumRV(OpRV):
     """Sum of distributions."""
