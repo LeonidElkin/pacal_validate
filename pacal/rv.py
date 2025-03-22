@@ -159,7 +159,7 @@ class RV(object):
     def isLinked(self):
         return len(self.parents)>0
     def getParentsAll(self):
-        l = set([self])
+        l = {self}
         for p in self.parents:
             l.update(p.getParentsDep())
         return l
@@ -563,21 +563,27 @@ def max(*args):
 
 
 if __name__ == "__main__":
-    x = RV(sym="x")
-    y = RV(sym="y")
-    z = RV(sym="z")
+    x = RV(sym="x", a=1.5, b=2.0)
+    y = RV(sym="y", a=2.5, b=3.0)
+    z = RV(sym="z", a=3.5, b=4.0)
     u = x + y
-    print(">>", u.getParentsAll())
-    print(">>", u.getParentsFree())
+
+    print("1", u.getParentsAll())
+    print("2", u.getParentsFree())
     u.setSym("u")
-    print(u.getEquations())
-    v = u + z
+    print("3", u.getEquations())
+    v = x + z
     v.setSym("v")
+    print("4", v.getEquations())
+    print("5", u.getSym())
+    print("6", v.getSym())
 
-    print(v.getEquations())
-
-    print(u.getSym())
-    print(v.getSym())
+    bruh = v * 2
+    bruh.setSym("bruh")
+    print("7", bruh.getSym())
+    print("8", bruh.getEquations())
+    print(">>", bruh.getParentsAll())
+    print(">>", bruh.getParentsFree())
 
 
 #    print d;
