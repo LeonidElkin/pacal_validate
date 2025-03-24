@@ -119,6 +119,8 @@ class Distr(RV):
             invcdf  = self.get_piecewise_cdf().invfun(use_interpolated=use_interpolated, rangeY=None)
         return invcdf
 
+    def ppf (self, p):
+        return self.get_piecewise_invcdf()(p)
     def pdf(self,x):
         return self.get_piecewise_pdf()(x)
     def cdf(self,x):
