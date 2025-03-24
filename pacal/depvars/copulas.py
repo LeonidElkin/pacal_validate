@@ -333,6 +333,8 @@ class MCopula(Copula):
         Lg, Ug = g.ci(0.01)
         deltaf = (Uf - Lf) / n
         deltag = (Ug - Lg) / n
+        xf = arange(Lf, Uf, deltaf)
+        xg = arange(Lg, Ug, deltag)
 
         X, Y = meshgrid(arange(Lf, Uf, deltaf), arange(Lg, Ug, deltag))
         if not show_pdf:
@@ -341,8 +343,6 @@ class MCopula(Copula):
             fig = figure(figsize=plt.figaspect(1))
             ax = fig.add_subplot(111, projection='3d', azim=azim, elev=elev)
             #ax = p3.Axes3D(fig)
-            xf = arange(Lf, Uf, deltaf)
-            xg = arange(Lg, Ug, deltag)
             cf = f.cdf(xf)
             cg = g.cdf(xg)
             ax.plot(xf, cf, zs=Ug, zdir='y', linewidth=3.0, color="k")
@@ -798,7 +798,7 @@ def convmeanx(F, G, segList, xx, p=0.5, q=0.5, theta=2):
     """Probabilistic weighted mean of f and g, integral at points xx
     """
     if size(xx) == 1:
-        xx = asfarray([xx])
+        xx = asarray([xx], dtype=float)
     wyn = zeros_like(xx)
     #P = PiCopula()
     #P = GumbelCopula(theta)

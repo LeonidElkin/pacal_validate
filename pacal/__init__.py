@@ -9,8 +9,6 @@ from pylab import show
 
 _np.seterr(all="ignore")
 
-from .utils import Inf
-
 from .distr import DiscreteDistr
 from .distr import exp, log, atan, min, max, sqrt, sign, sin, cos, tan, tanh, sigmoid
 
