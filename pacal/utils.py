@@ -20,11 +20,11 @@ import types
 from functools import partial
 import multiprocessing
 
-from numpy import array, arange, empty, cos, sin, abs
+from numpy import array, arange, empty, cos, sin, abs, inf
 from numpy import pi, isnan, unique, diff
 from numpy import hstack, maximum, isfinite
-from numpy import isinf, log, exp, logspace, Inf, nan
-from numpy import finfo, double, isscalar, asfarray
+from numpy import isinf, log, exp, logspace, nan
+from numpy import finfo, double, isscalar
 from pylab import plot, loglog, show, semilogx, sqrt, figure
 from pylab import real, ones_like
 from numpy import zeros, sort
@@ -33,12 +33,6 @@ from numpy import real, concatenate, linspace, argmin
 from scipy.optimize import fmin_cg,fmin, fmin_tnc
 
 from . import params
-
-# safe infinity
-try:
-    from numpy import Inf
-except:
-    Inf = float('inf')
 
 # function wrappers for avoiding lambdas
 
@@ -359,7 +353,7 @@ def stepfun(x, shift = 0.0):
             return 1.0
     else:
         mask = (x >= 0.0)
-        y = zeros_like(asfarray(x))
+        y = zeros_like(asarray(x, dtype=float))
         y[mask] = 1.0
         return y
 
@@ -461,7 +455,7 @@ def estimateTailExponent(f, fromTo = None, N =300, deriv = False, debug_plot = F
     if len(yi) > 1:
         ex = ri[-1]/di[-1]
         if ex>50:
-            return Inf
+            return inf
         else:
             return ex
     else:

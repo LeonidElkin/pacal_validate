@@ -123,8 +123,8 @@ def c_dense_grid_interp(one_over_x_m_xi_list not None, np.ndarray[DTYPE_t, ndim=
         one_over_x_m_xi = one_over_x_m_xi_list[i]
         ms[i] = one_over_x_m_xi.shape[1]
         one_over_x_m_xi_list_copy[i] = <DTYPE_t *>malloc(ms[i] * n * sizeof(DTYPE_t))
-        for j from 0 <= j < n:
-             for k from 0 <= k < ms[i]:
+        for j in range(n):
+             for k in range(ms[i]):
                  one_over_x_m_xi_list_copy[i][k*n+j] = one_over_x_m_xi[j,k]
 
 
@@ -141,15 +141,15 @@ def c_dense_grid_interp(one_over_x_m_xi_list not None, np.ndarray[DTYPE_t, ndim=
         num[i] = 0
     # loop over grid points
     for idx in range(M):
-        for i from 0 <= i < n:
+        for i in range(n):
             temp[i] = fs_copy[idx] * one_over_x_m_xi_list_copy[0][n * nd_idx[0] + i]
         for j in range(1, d):
-            for i from 0 <= i < n:
+            for i in range(n):
                 temp[i] *= one_over_x_m_xi_list_copy[j][n * nd_idx[j] + i]
-        for i from 0 <= i < n:
+        for i in range(n):
             num[i] += temp[i]
         # advance to next index
-        for k from d > k >= 0:
+        for k in range(d - 1, -1, -1):
             nd_idx[k] += 1
             if nd_idx[k] < ms[k]:
                 break

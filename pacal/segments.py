@@ -13,10 +13,9 @@ from .utils import epsunique, estimateDegreeOfPole, testPole, findinv, findinv_m
 
 from . import params
 
-from numpy import asfarray
 from numpy import linspace, multiply, add, divide, size
 from numpy import unique, union1d, isnan, isscalar, diff, size
-from numpy import inf, Inf, NaN, sign, isinf, isfinite, exp, isneginf, isposinf
+from numpy import inf, sign, isinf, isfinite, exp, isneginf, isposinf
 from numpy import logspace, sqrt, minimum, maximum, pi, mean, log10
 from numpy import append, nan_to_num, select
 from numpy.random import uniform
@@ -71,10 +70,10 @@ def _op_one_over_x(x):
         if x != 0:
             y = 1.0 / x
         else:
-            y = Inf
+            y = inf
     else:
         mask = (x != 0.0)
-        y = zeros_like(asfarray(x))
+        y = zeros_like(asarray(x,dtype=float))
         y[mask] = 1.0 / x[mask]
     return y
 def _op_one_over_xsqaure(x):
@@ -82,10 +81,10 @@ def _op_one_over_xsqaure(x):
         if x != 0:
             y = 1.0 / x**2
         else:
-            y = Inf
+            y = inf
     else:
         mask = (x != 0.0)
-        y = zeros_like(asfarray(x))
+        y = zeros_like(asarray(x,dtype=float))
         y[mask] = 1.0 / (x[mask])**2
     return y
 
@@ -262,9 +261,9 @@ class Segment(object):
         numberOfPoints = params.segments.plot.numberOfPoints
         xmin = self.a
         xmax = self.b
-        if (xmin == -Inf):
+        if (xmin == -inf):
             xmin = self.findLeftpoint()
-        if (xmax == Inf):
+        if (xmax == inf):
             xmax = self.findRightpoint()
         #xi = logspace(log10(xmin), log10(xmax), numberOfPoints)
         #xi = linspace(xmin, xmax, numberOfPoints)
@@ -278,7 +277,7 @@ class Segment(object):
     def shiftAndScale(self, shift, scale):
         """Scale and shift a segment: replace scale*f(x)+shift
         """
-        if scale is 1:
+        if scale == 1:
             _1_scale = 1
         else:
             _1_scale = 1.0 / scale
@@ -480,7 +479,7 @@ class ConstSegment(Segment):
 class MInfSegment(Segment):
     """Segment on the range [-inf, b)."""
     def __init__(self, b, f):
-        super(MInfSegment, self).__init__(-Inf, b, f)
+        super(MInfSegment, self).__init__(-inf, b, f)
     def toInterpolatedSegment(self):
         return MInfInterpolatedSegment(self.b,
                                    #ChebyshevInterpolator_MInf(self.f, self.b))
@@ -536,7 +535,7 @@ class PInfSegment(Segment):
     """Segment = (a, inf]
     """
     def __init__(self, a, f):
-        super(PInfSegment, self).__init__(a, Inf, f)
+        super(PInfSegment, self).__init__(a, inf, f)
     def toInterpolatedSegment(self):
         return PInfInterpolatedSegment(self.a,
                                    #ChebyshevInterpolator_PInf(self.f, self.a))
@@ -604,7 +603,7 @@ class DiracSegment(Segment):
             y = (x==self.a) * 1
         else:
             y=zeros_like(x)
-            y[x==self.a] = 1 # TODO it should be Inf or self.f
+            y[x==self.a] = 1 # TODO it should be inf or self.f
         return y
     def integrate(self, a, b):
         if (a<self.a and self.b<b) or (a==b==self.a):
@@ -682,9 +681,9 @@ class InterpolatedSegment(Segment):
         Xs, Ys = self.f.getNodes()
         xmin = self.a
         xmax = self.b
-        if (xmin == -Inf):
+        if (xmin == -inf):
             xmin = self.findLeftpoint()
-        if (xmax == Inf):
+        if (xmax == inf):
             xmax = self.findRightpoint()
         Ys=Ys[Xs>=xmin]
         Xs=Xs[Xs>=xmin]
@@ -1052,9 +1051,9 @@ class PiecewiseFunction(object):
     def integrate(self, a = None, b = None):
         I = 0.0
         if a==None:
-            a = -Inf
+            a = -inf
         if b==None:
-            b = +Inf
+            b = +inf
         for seg in self.segments:
             i = seg.integrate(a, b)
             I = I + i
@@ -1139,7 +1138,7 @@ class PiecewiseFunction(object):
         return diffPFun
 
     def ccumint(self):
-        """TODO complementary cumint i.e int_x^Inf f(x) dx"""
+        """TODO complementary cumint i.e int_x^inf f(x) dx"""
         integralPFun = CumulativePiecewiseFunction([])
         f0 = 0
         for seg in self.segments:
@@ -1740,8 +1739,8 @@ class PiecewiseFunction(object):
         The masses outside the interval are transferred to points a and b as deltas.
         """
 
-        left_mass = self.integrate(-Inf, a)
-        right_mass = self.integrate(b, Inf)
+        left_mass = self.integrate(-inf, a)
+        right_mass = self.integrate(b, inf)
 
         f_restricted = self.truncate(a, b)
         middle_mass = f_restricted.integrate()
@@ -1838,7 +1837,7 @@ class PiecewiseFunction(object):
         if x is None: # It means
             print("ASSERT x is None y=", y, self.__str__())
             print("ASSERT x is None vals=", vals)
-            x = NaN
+            x = nan
         return x
     def inverse(self, y):
         if isscalar(y):
@@ -1909,7 +1908,7 @@ class PiecewiseDistribution(PiecewiseFunction):
             E += e
             I = I + i
         if E>1.0e-1:
-            return NaN
+            return nan
         return I
     def meanf(self, f=None):
         """it gives mean value of f(X) (i.e. E(f(X)))
@@ -1929,7 +1928,7 @@ class PiecewiseDistribution(PiecewiseFunction):
             absI += abs(i)
         if  abs(E/absI)>1.0e-3 and abs(absI)>1e-10:
             #print I, absI, E
-            return NaN
+            return nan
         return I
 
     def median(self):
@@ -1947,7 +1946,7 @@ class PiecewiseDistribution(PiecewiseFunction):
             i = seg.f*(seg.a - m) ** 2
             I += i
         if E>1.0e-0:
-            return Inf
+            return inf
         else:
             return I
 
@@ -2372,7 +2371,7 @@ if __name__ == "__main__":
 #
 #    #d.plot()
 #    #fig = plt.figure()
-#    #print estimateDegreeOfZero(h, Inf)
+#    #print estimateDegreeOfZero(h, inf)
 #
 #    #intf =  f.integrate()
 #    #intg =  g.integrate()
