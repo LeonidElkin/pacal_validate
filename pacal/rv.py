@@ -330,15 +330,16 @@ class TruncRV(OpRV):
 class CensoredRV(OpRV):
     def __init__(self, d, a, b, sym = None):
         super(CensoredRV, self).__init__([d], sym = sym)
+        self.a, self.b = d.range()
         self.d = d
-        self.a = a
-        self.b = b
+        self.censor_a = a
+        self.censor_b = b
     def __str__(self):
-        return "({0})censored to({1}, {2})".format(self.d, self.a, self.b)
+        return "({0})censored to({1}, {2})".format(self.d, self.censor_a, self.censor_b)
     def getName(self):
-        return "({0})censored to({1}, {2})".format(self.d.getName(), self.a, self.b)
-    def getSegments(self):
-        return self.a, self.b
+        return "({0})censored to({1}, {2})".format(self.d.getName(), self.censor_a, self.censor_b)
+    def getSegmentsCensoredTo(self):
+        return self.censor_a, self.censor_b
 
 class FuncRV(OpRV):
     """Function of random variable"""
