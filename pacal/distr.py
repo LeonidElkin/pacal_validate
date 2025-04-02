@@ -588,9 +588,9 @@ class CensoredDistr(CensoredRV, OpDistr):
     def pdf(self, x):
         if isscalar(x):
             if x < self.censor_a:
-                y = self.censor_a
+                y = self.d.pdf(self.censor_a)
             elif x > self.censor_b:
-                y = self.censor_b
+                y = self.d.pdf(self.censor_b)
             else:
                 y = self.d.pdf(x)
         else:

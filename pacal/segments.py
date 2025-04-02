@@ -1755,7 +1755,7 @@ class PiecewiseFunction(object):
         if right_mass > 0:
             result.addSegment(DiracSegment(b, right_mass * norm_factor))
 
-        f_normalized = f_restricted * (middle_mass * norm_factor / middle_mass)  # просто умножим на norm_factor
+        f_normalized = f_restricted * (middle_mass * norm_factor / middle_mass)
         for seg in f_normalized.segments:
             result.addSegment(seg)
 
