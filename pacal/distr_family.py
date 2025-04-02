@@ -2,12 +2,15 @@ import numpy as np
 from scipy.optimize import minimize
 
 
-class DistributionFamily:
-    def __init__(self, param_names, expr_func):
+class DistrFamily:
+    def __init__(self, param_names, expr_func, delete_unused_params=True):
         self._original_param_names = param_names
         self.expr_func = expr_func
 
-        self.param_names = self._detect_used_params()
+        if delete_unused_params:
+            self.param_names = self._detect_used_params()
+        else:
+            self.param_names = self._original_param_names
 
     def _detect_used_params(self):
         used = []
@@ -29,20 +32,20 @@ class DistributionFamily:
         return self.expr_func(param_dict)
 
     def __add__(self, other):
-        return DistributionFamily.merge(self, other, lambda x, y: x + y)
+        return DistrFamily.merge(self, other, lambda x, y: x + y)
 
     def __mul__(self, other):
-        return DistributionFamily.merge(self, other, lambda x, y: x * y)
+        return DistrFamily.merge(self, other, lambda x, y: x * y)
 
     def __truediv__(self, other):
-        return DistributionFamily.merge(self, other, lambda x, y: x / y)
+        return DistrFamily.merge(self, other, lambda x, y: x / y)
 
     @staticmethod
     def merge(p1, p2, comb_func):
-        if not isinstance(p1, DistributionFamily):
-            p1 = DistributionFamily([], lambda _: p1)
-        if not isinstance(p2, DistributionFamily):
-            p2 = DistributionFamily([], lambda _: p2)
+        if not isinstance(p1, DistrFamily):
+            p1 = DistrFamily([], lambda _: p1)
+        if not isinstance(p2, DistrFamily):
+            p2 = DistrFamily([], lambda _: p2)
         param_names = list(set(p1.param_names + p2.param_names))
 
         def expr(params):
@@ -50,7 +53,7 @@ class DistributionFamily:
             d2 = p2.instantiate(params)
             return comb_func(d1, d2)
 
-        return DistributionFamily(param_names, expr)
+        return DistrFamily(param_names, expr)
 
     def refine(self, fixed_params):
         remaining = [p for p in self.param_names if p not in fixed_params]
@@ -63,7 +66,7 @@ class DistributionFamily:
         if not remaining:
             return self.expr_func(fixed_params)
 
-        return DistributionFamily(remaining, new_expr)
+        return DistrFamily(remaining, new_expr, False)
 
     def estimate(self, samples, initial_guess, bounds=None, loss_fn=None):
 
