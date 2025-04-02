@@ -1,3 +1,5 @@
+import numpy as np
+
 from pacal import ConstDistr, UniformDistr
 from pacal.rv import CensoredRV, RV
 
@@ -26,3 +28,13 @@ class TestCensor(object):
 
         assert censored.pdf(2) == censored.pdf(3)
         assert censored.pdf(8) == censored.pdf(7)
+
+    def test_censored_sampling(self):
+        d = UniformDistr(0, 10)
+        censored = d.censor(2, 8)
+        samples = censored.rand(10000)
+
+        assert np.all(samples >= 0)
+        assert np.all(samples <= 10)
+        assert np.any(samples == 2)
+        assert np.any(samples == 8)
