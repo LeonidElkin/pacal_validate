@@ -587,28 +587,28 @@ class CensoredDistr(CensoredRV, OpDistr):
         super(CensoredDistr, self).__init__(d, a, b, sym=sym)
     def pdf(self, x):
         if isscalar(x):
-            if x < self.a:
-                y = self.a
-            elif x > self.b:
-                y = self.b
+            if x < self.censor_a:
+                y = self.censor_a
+            elif x > self.censor_b:
+                y = self.censor_b
             else:
                 y = self.d.pdf(x)
         else:
             y = zeros_like(asarray(x, dtype=float))
-            mask = (self.a <= x) & (x <= self.b)
+            mask = (self.censor_a <= x) & (x <= self.censor_b)
             y[mask] = self.d.pdf(x[mask])
         return y
 
     def init_piecewise_pdf(self):
-        self.piecewise_pdf = self.d.get_piecewise_pdf().censor(self.a, self.b)
+        self.piecewise_pdf = self.d.get_piecewise_pdf().censor(self.censor_a, self.censor_b)
     def rand_op(self, n, cache):
         samples = []
         for i in range(n):
             num = self.d.rand(1, cache)
-            if num > self.b:
-                num[0] = self.b
-            if num < self.a:
-                num[0] = self.a
+            if num > self.censor_b:
+                num[0] = self.censor_b
+            if num < self.censor_a:
+                num[0] = self.censor_a
             samples.append(*num)
         return array(samples)
 
