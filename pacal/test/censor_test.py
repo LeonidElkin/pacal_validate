@@ -9,8 +9,8 @@ class TestCensor(object):
         censored = d.censor(2, 8)
 
         assert censored.range() == (0, 10)
-        assert censored.pdf(1.9) == censored.pdf(2)
-        assert censored.pdf(8.1) == censored.pdf(8)
+        assert censored.pdf(1.8) == censored.pdf(1.9)
+        assert censored.pdf(8.1) == censored.pdf(8.2)
 
     def test_censored_rv(self):
         base_rv = RV(sym="X", a=0, b=10)

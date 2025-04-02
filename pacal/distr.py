@@ -566,11 +566,11 @@ class TruncDistr(TruncRV, OpDistr):
             if x < self.a or x > self.b:
                 y = 0
             else:
-                y = self.d.pdf(x)
+                y = self.d.pdf(x) / (self.d.cdf(self.b) - self.d.cdf(self.a))
         else:
             y = zeros_like(asarray(x, dtype=float))
             mask = (self.a <= x) & (x <= self.b)
-            y[mask] = self.d.pdf(x[mask])
+            y[mask] = self.d.pdf(x[mask]) / (self.d.cdf(self.b) - self.d.cdf(self.a))
         return y
 
     def rand_op(self, n, cache):
@@ -585,14 +585,13 @@ class TruncDistr(TruncRV, OpDistr):
 class CensoredDistr(CensoredRV, OpDistr):
     def __init__(self, d, a, b, sym = None):
         super(CensoredDistr, self).__init__(d, a, b, sym=sym)
+
     def pdf(self, x):
         if isscalar(x):
-            if x < self.censor_a:
-                y = self.d.pdf(self.censor_a)
-            elif x > self.censor_b:
-                y = self.d.pdf(self.censor_b)
-            else:
+            if self.censor_a <= x <= self.censor_b:
                 y = self.d.pdf(x)
+            else:
+                y = 0
         else:
             y = zeros_like(asarray(x, dtype=float))
             mask = (self.censor_a <= x) & (x <= self.censor_b)
