@@ -40,6 +40,12 @@ class DistrFamily:
     def __truediv__(self, other):
         return DistrFamily.merge(lambda x, y: x * y, self, other)
 
+    def trunc(self, a, b):
+        return DistrFamily.merge(lambda x: x.trunc(a, b), self)
+
+    def censor(self, a, b):
+        return DistrFamily.merge(lambda x: x.censor(a, b), self)
+
     @staticmethod
     def merge(comb_func, *args):
         new_args = []

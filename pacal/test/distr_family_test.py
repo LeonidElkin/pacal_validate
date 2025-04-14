@@ -1,6 +1,7 @@
 import numpy as np
 
 from pacal import NormalDistr, MixDistr
+from pacal.distr import TruncDistr, CensoredDistr, SumDistr
 from pacal.distr_family import DistrFamily
 
 
@@ -16,7 +17,8 @@ class TestDistrFamily(object):
         P2 = DistrFamily(['b'], lambda p: NormalDistr(0, p['b']))
         Psum = P1 + P2
         d = Psum.instantiate({'a': 1.0, 'b': 2.0})
-        assert isinstance(d, NormalDistr) or hasattr(d, 'pdf')
+        assert hasattr(d, 'pdf')
+        assert isinstance(d, SumDistr)
 
     def test_refine_and_collapse(self):
         P = DistrFamily(['mu', 'sigma'], lambda p: NormalDistr(p['mu'], p['sigma']))
@@ -45,3 +47,18 @@ class TestDistrFamily(object):
         ))
         d = P.instantiate({'s1': 1.0, 's2': 2.0, 'w': 0.3})
         assert hasattr(d, 'pdf') and hasattr(d, 'rand')
+
+    def test_trunc(self):
+        P = DistrFamily(['sigma'], lambda p: NormalDistr(0, p['sigma']))
+        P_trunc = P.trunc(-3.0, 3.0)
+        d = P_trunc.instantiate({'sigma': 2.0})
+        assert isinstance(d, TruncDistr)
+        assert d.range() == (-3.0, 3.0)
+
+    def test_censor(self):
+        P = DistrFamily(['sigma'], lambda p: NormalDistr(0, p['sigma']))
+        P_censor = P.censor(-3.0, 3.0)
+        d = P_censor.instantiate({'sigma': 2.0})
+        assert isinstance(d, CensoredDistr)
+        assert d.range() == NormalDistr(0, 2).range()
+
