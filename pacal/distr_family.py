@@ -32,26 +32,27 @@ class DistrFamily:
         return self.expr_func(param_dict)
 
     def __add__(self, other):
-        return DistrFamily.merge(self, other, lambda x, y: x + y)
+        return DistrFamily.merge(lambda x, y: x + y, self, other )
 
     def __mul__(self, other):
-        return DistrFamily.merge(self, other, lambda x, y: x * y)
+        return DistrFamily.merge(lambda x, y: x * y, self, other)
 
     def __truediv__(self, other):
-        return DistrFamily.merge(self, other, lambda x, y: x / y)
+        return DistrFamily.merge(lambda x, y: x * y, self, other)
 
     @staticmethod
-    def merge(p1, p2, comb_func):
-        if not isinstance(p1, DistrFamily):
-            p1 = DistrFamily([], lambda _: p1)
-        if not isinstance(p2, DistrFamily):
-            p2 = DistrFamily([], lambda _: p2)
-        param_names = list(set(p1.param_names + p2.param_names))
+    def merge(comb_func, *args):
+        new_args = []
+        for i in args:
+            if not isinstance(i, DistrFamily):
+                i = DistrFamily([], lambda _: i)
+            new_args.append(i)
+
+        param_names = list(set(item for sublist in new_args for item in sublist.param_names))
 
         def expr(params):
-            d1 = p1.instantiate(params)
-            d2 = p2.instantiate(params)
-            return comb_func(d1, d2)
+            distrs = [i.instantiate(params) for i in new_args]
+            return comb_func(*distrs)
 
         return DistrFamily(param_names, expr)
 
