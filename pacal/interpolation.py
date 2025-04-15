@@ -18,7 +18,7 @@ from __future__ import print_function
 
 from functools import partial
 
-from numpy import array, asfarray, zeros_like, ones_like, asarray, atleast_1d
+from numpy import array, zeros_like, ones_like, asarray, atleast_1d
 from numpy import array_split, concatenate, squeeze
 from numpy import where, dot, zeros
 from numpy import maximum
@@ -106,7 +106,7 @@ class BarycentricInterpolator(Interpolator):
         """Barycentric interpolation"""
         scalar_x = isscalar(x)
         if have_Cython:
-            y = bary_interp(self.Xs, self.Ys, self.weights, asfarray(atleast_1d(x)))
+            y = bary_interp(self.Xs, self.Ys, self.weights, asarray(atleast_1d(x),dtype=float))
             if scalar_x:
                 y = y[0]
         else:
@@ -535,7 +535,7 @@ class LogTransformInterpolator(ChebyshevInterpolatorNoR):
                 y = exp(super(LogTransformInterpolator, self).interp_at(self.xtinv(x)))
             return y
         else:
-            x = asfarray(x)
+            x = asarray(x, dtype=float)
             y = zeros_like(x)
             mask = (x <= self.orig_b)
             y[mask] = exp(super(LogTransformInterpolator, self).interp_at(self.xtinv(x[mask])))

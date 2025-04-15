@@ -159,7 +159,7 @@ class RV(object):
     def isLinked(self):
         return len(self.parents)>0
     def getParentsAll(self):
-        l = set([self])
+        l = {self}
         for p in self.parents:
             l.update(p.getParentsDep())
         return l
@@ -313,6 +313,34 @@ class OpRV(RV):
             else:
                 op = str(self.getSym().__class__)
             return "({0}{2}{1})".format(self.parents[0], self.parents[1], op)
+
+class TruncRV(OpRV):
+    def __init__(self, d, a, b, sym = None):
+        super(TruncRV, self).__init__([d], sym = sym)
+        self.d = d
+        self.a = a
+        self.b = b
+    def __str__(self):
+        return "({0})truncated to({1}, {2})".format(self.d, self.a, self.b)
+    def getName(self):
+        return "({0})truncated to({1}, {2})".format(self.d.getName(), self.a, self.b)
+    def getSegments(self):
+        return self.a, self.b
+
+class CensoredRV(OpRV):
+    def __init__(self, d, a, b, sym = None):
+        super(CensoredRV, self).__init__([d], sym = sym)
+        self.a, self.b = d.range()
+        self.d = d
+        self.censor_a = a
+        self.censor_b = b
+    def __str__(self):
+        return "({0})censored to({1}, {2})".format(self.d, self.censor_a, self.censor_b)
+    def getName(self):
+        return "({0})censored to({1}, {2})".format(self.d.getName(), self.censor_a, self.censor_b)
+    def getSegmentsCensoredTo(self):
+        return self.censor_a, self.censor_b
+
 class FuncRV(OpRV):
     """Function of random variable"""
     def __init__(self, d, fname = "f", sym = None):
@@ -435,7 +463,6 @@ class SquareRV(OpRV):
         return "#{0}**2".format(self.d.id())
     def getName(self):
         return "sqr({0})".format(self.d.getName())
-
 
 class SumRV(OpRV):
     """Sum of distributions."""
@@ -563,21 +590,27 @@ def max(*args):
 
 
 if __name__ == "__main__":
-    x = RV(sym="x")
-    y = RV(sym="y")
-    z = RV(sym="z")
+    x = RV(sym="x", a=1.5, b=2.0)
+    y = RV(sym="y", a=2.5, b=3.0)
+    z = RV(sym="z", a=3.5, b=4.0)
     u = x + y
-    print(">>", u.getParentsAll())
-    print(">>", u.getParentsFree())
+
+    print("1", u.getParentsAll())
+    print("2", u.getParentsFree())
     u.setSym("u")
-    print(u.getEquations())
-    v = u + z
+    print("3", u.getEquations())
+    v = x + z
     v.setSym("v")
+    print("4", v.getEquations())
+    print("5", u.getSym())
+    print("6", v.getSym())
 
-    print(v.getEquations())
-
-    print(u.getSym())
-    print(v.getSym())
+    bruh = v * 2
+    bruh.setSym("bruh")
+    print("7", bruh.getSym())
+    print("8", bruh.getEquations())
+    print(">>", bruh.getParentsAll())
+    print(">>", bruh.getParentsFree())
 
 
 #    print d;
