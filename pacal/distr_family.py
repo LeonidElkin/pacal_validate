@@ -32,7 +32,7 @@ class DistrFamily:
         return self.expr_func(param_dict)
 
     def __add__(self, other):
-        return DistrFamily.merge(lambda x, y: x + y, self, other )
+        return DistrFamily.merge(lambda x, y: x + y, self, other)
 
     def __mul__(self, other):
         return DistrFamily.merge(lambda x, y: x * y, self, other)

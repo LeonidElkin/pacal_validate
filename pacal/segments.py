@@ -1741,26 +1741,22 @@ class PiecewiseFunction(object):
 
         left_mass = self.integrate(-inf, a)
         right_mass = self.integrate(b, inf)
+        middle_mass = self.integrate(a, b)
 
         f_restricted = self.truncate(a, b)
-        middle_mass = f_restricted.integrate()
-
-        total_mass = left_mass + middle_mass + right_mass
-        norm_factor = 1.0 / total_mass
+        f_scaled = f_restricted * middle_mass  # приведение обратно к реальной массе
 
         result = PiecewiseFunction([])
 
         if left_mass > 0:
-            result.addSegment(DiracSegment(a, left_mass * norm_factor))
+            result.addSegment(DiracSegment(a, left_mass))
         if right_mass > 0:
-            result.addSegment(DiracSegment(b, right_mass * norm_factor))
+            result.addSegment(DiracSegment(b, right_mass))
 
-        f_normalized = f_restricted * (middle_mass * norm_factor / middle_mass)
-        for seg in f_normalized.segments:
+        for seg in f_scaled.segments:
             result.addSegment(seg)
 
         return result
-
 
     def splitByPoints(self, points):
         """Pointwise subtraction of two piecewise functions """

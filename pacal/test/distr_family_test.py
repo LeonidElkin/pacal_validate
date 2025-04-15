@@ -61,4 +61,3 @@ class TestDistrFamily(object):
         d = P_censor.instantiate({'sigma': 2.0})
         assert isinstance(d, CensoredDistr)
         assert d.range() == NormalDistr(0, 2).range()
-
